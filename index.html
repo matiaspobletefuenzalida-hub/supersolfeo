@@ -46,6 +46,26 @@
             text-align: center;
         }
 
+        /* --- PANTALLA DE REGISTRO --- */
+        #registro-estudiante {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .input-mario {
+            padding: 15px 25px;
+            font-size: 1.2rem;
+            border: 3px solid #000;
+            border-radius: 50px;
+            font-family: 'Nunito', sans-serif;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            outline: none;
+        }
+
         /* --- ESTILO SUPER MARIO PARA EL TÍTULO --- */
         h1.mario-title { 
             font-family: 'Fredoka', sans-serif; 
@@ -54,7 +74,6 @@
             margin-bottom: 0.5rem; 
             letter-spacing: 2px;
             line-height: 1.1;
-            /* Contorno negro estilo caricatura y sombra paralela */
             text-shadow: 
                 -4px -4px 0 #000,  
                  4px -4px 0 #000,
@@ -65,11 +84,9 @@
         }
 
         .mario-title span { display: inline-block; }
-        /* Pequeño rebote asimétrico en las letras */
         .mario-title span:nth-child(even) { transform: rotate(3deg) translateY(-3px); }
         .mario-title span:nth-child(odd) { transform: rotate(-3deg) translateY(3px); }
 
-        /* Colores icónicos */
         .m-red { color: #E52521; }
         .m-blue { color: #049CD8; }
         .m-yellow { color: #FBD000; }
@@ -103,7 +120,6 @@
             transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
             top: 0;
-            /* Contorno negro suave para mantener la estética de videojuego */
             text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
             border: 3px solid #000;
             box-shadow: 0 6px 0px #000;
@@ -118,7 +134,7 @@
             box-shadow: 0 0px 0px #000;
         }
 
-        .diff-btn:not(.active) { opacity: 0.8; transform: scale(0.95); }
+        #game-content { display: none; } /* Oculto inicialmente */
 
         #game-area {
             display: none;
@@ -151,7 +167,7 @@
             gap: 20px;
             flex-wrap: wrap;
             justify-content: center;
-            min-height: 60px; /* Para que el layout no salte cuando desaparece el botón */
+            min-height: 60px;
         }
 
         .btn-main {
@@ -172,49 +188,27 @@
             text-shadow: 1px 1px 0 #000;
         }
 
-        .btn-refresh { 
-            background-color: var(--accent); 
-            box-shadow: 0 8px 0px #000; 
-        }
+        .btn-refresh { background-color: var(--accent); box-shadow: 0 8px 0px #000; }
+        .btn-wildcard { background-color: var(--wildcard); box-shadow: 0 8px 0px #000; }
 
-        .btn-wildcard { 
-            background-color: var(--wildcard); 
-            box-shadow: 0 8px 0px #000; 
-        }
-
-        .btn-main:active {
-            top: 8px;
-            box-shadow: 0 0px 0px #000;
-        }
-
-        .btn-main svg { transition: transform 0.3s; }
-        .btn-main:hover svg { transform: rotate(20deg) scale(1.2); }
-
-        /* --- ANIMACIÓN ESPECTACULAR DEL COMODÍN --- */
-        @keyframes vanishMagic {
-            0% { transform: scale(1) rotate(0deg); filter: brightness(1); }
-            40% { transform: scale(1.2) rotate(-15deg); filter: brightness(1.5); }
-            100% { transform: scale(0) rotate(180deg); filter: brightness(2); opacity: 0; }
-        }
+        .btn-main:active { top: 8px; box-shadow: 0 0px 0px #000; }
 
         .btn-wildcard.poof {
             animation: vanishMagic 0.6s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards;
-            pointer-events: none; /* Evita que hagan doble clic mientras desaparece */
+            pointer-events: none;
         }
 
-        /* --- ESTILOS DEL CRÉDITO DEL PROFESOR --- */
+        @keyframes vanishMagic {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            100% { transform: scale(0) rotate(180deg); opacity: 0; }
+        }
+
         .credito-profesor {
             margin-top: 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Nunito', sans-serif;
             font-weight: 900;
             font-size: 1.2rem;
             color: #546e7a;
-            padding-bottom: 0.5rem;
         }
-
     </style>
 </head>
 <body>
@@ -224,27 +218,39 @@
         <span class="m-red">S</span><span class="m-blue">U</span><span class="m-yellow">P</span><span class="m-green">E</span><span class="m-red">R</span><br>
         <span class="m-green">S</span><span class="m-blue">O</span><span class="m-red">L</span><span class="m-yellow">F</span><span class="m-green">E</span><span class="m-blue">O</span>
     </h1>
-    <p class="subtitle" id="level-description">¡Elige un nivel para tu misión musical!</p>
 
-    <div class="difficulty-selector">
-        <button class="diff-btn btn-l1" onclick="startGame(1)">🍄 Nivel 1</button>
-        <button class="diff-btn btn-l2" onclick="startGame(2)">⭐ Nivel 2</button>
-        <button class="diff-btn btn-l3" onclick="startGame(3)">🔥 Nivel 3</button>
+    <div id="registro-estudiante">
+        <p class="subtitle">¡Hola! Antes de empezar, dinos tu nombre:</p>
+        <form id="form-inicio" style="width: 100%;">
+            <input type="text" id="nombre-niño" name="Nombre" class="input-mario" placeholder="Escribe tu nombre aquí..." required>
+            <br><br>
+            <button type="submit" id="btn-comenzar" class="btn-main btn-refresh" style="background-color: #43B047;">
+                ¡Comenzar Misión! 🚀
+            </button>
+        </form>
     </div>
 
-    <div id="game-area">
-        <div id="score-container"></div>
+    <div id="game-content">
+        <p class="subtitle" id="level-description">¡Elige un nivel para tu misión musical!</p>
 
-        <div class="action-buttons">
-            <button class="btn-main btn-refresh" onclick="renderNewExercise()">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="black" stroke-width="1"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h6V3h-8z"/></svg>
-                ¡Nueva Canción!
-            </button>
+        <div class="difficulty-selector">
+            <button class="diff-btn btn-l1" onclick="startGame(1)">🍄 Nivel 1</button>
+            <button class="diff-btn btn-l2" onclick="startGame(2)">⭐ Nivel 2</button>
+            <button class="diff-btn btn-l3" onclick="startGame(3)">🔥 Nivel 3</button>
+        </div>
 
-            <button class="btn-main btn-wildcard" id="wildcard-btn" onclick="applyWildcard()">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                ¡Pista Mágica!
-            </button>
+        <div id="game-area">
+            <div id="score-container"></div>
+            <div class="action-buttons">
+                <button class="btn-main btn-refresh" onclick="renderNewExercise()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="black" stroke-width="1"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h6V3h-8z"/></svg>
+                    ¡Nueva Canción!
+                </button>
+                <button class="btn-main btn-wildcard" id="wildcard-btn" onclick="applyWildcard()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    ¡Pista Mágica!
+                </button>
+            </div>
         </div>
     </div>
     
@@ -254,6 +260,43 @@
 </div>
 
 <script>
+    // --- LÓGICA DE FORMSUBMIT ---
+    const formInicio = document.getElementById('form-inicio');
+    const registroDiv = document.getElementById('registro-estudiante');
+    const juegoDiv = document.getElementById('game-content');
+
+    formInicio.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const nombre = document.getElementById('nombre-niño').value;
+        const btn = document.getElementById('btn-comenzar');
+        
+        btn.innerText = "Cargando...";
+        btn.disabled = true;
+
+        // Envío silencioso a tu correo
+        fetch("https://formsubmit.co/ajax/matias.poblete@slepcolchagua.cl", {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({
+                Estudiante: nombre,
+                Accion: "Inició el juego de Solfeo",
+                _subject: "Nuevo Estudiante: " + nombre
+            })
+        })
+        .then(() => {
+            // Transición al juego
+            registroDiv.style.display = 'none';
+            juegoDiv.style.display = 'block';
+        })
+        .catch(err => {
+            console.error(err);
+            // Si falla el internet, igual dejamos entrar al niño para no frustrarlo
+            registroDiv.style.display = 'none';
+            juegoDiv.style.display = 'block';
+        });
+    });
+
+    // --- LÓGICA ORIGINAL DEL JUEGO ---
     const { Renderer, Stave, StaveNote, Beam, Formatter, Annotation } = Vex.Flow;
 
     const difficultyConfig = {
@@ -320,8 +363,6 @@
     function renderNewExercise() {
         currentMeasuresData = [generateMeasureData(), generateMeasureData(), generateMeasureData(), generateMeasureData()];
         drawScore();
-
-        // Reiniciar el botón de pista mágica para la nueva canción
         const wildcardBtn = document.getElementById('wildcard-btn');
         wildcardBtn.classList.remove('poof');
         wildcardBtn.style.display = 'inline-flex';
@@ -329,8 +370,6 @@
 
     function applyWildcard() {
         const wildcardBtn = document.getElementById('wildcard-btn');
-        
-        // Si ya está animándose o desapareció, no hacer nada
         if (wildcardBtn.classList.contains('poof')) return;
 
         let allNotes = [];
@@ -340,10 +379,8 @@
             });
         });
 
-        // Asegurarnos de limpiar cualquier pista anterior por si acaso
         currentMeasuresData.forEach(m => m.forEach(n => delete n.showHint));
         
-        // Seleccionar hasta 3 notas al azar
         for(let i=0; i<3; i++) {
             if(allNotes.length === 0) break;
             let randIdx = Math.floor(Math.random() * allNotes.length);
@@ -352,14 +389,8 @@
         }
 
         drawScore();
-
-        // Disparar la animación de desaparición espectacular
         wildcardBtn.classList.add('poof');
-        
-        // Ocultarlo por completo del DOM después de que termine la animación (600ms)
-        setTimeout(() => {
-            wildcardBtn.style.display = 'none';
-        }, 600);
+        setTimeout(() => { wildcardBtn.style.display = 'none'; }, 600);
     }
 
     function drawScore() {
@@ -383,18 +414,12 @@
 
             measureNotes.forEach(n => {
                 const sn = new StaveNote({ keys: n.keys, duration: n.duration });
-                
                 if (n.showHint) {
                     let letter = n.keys[0].split("/")[0];
                     let name = noteNamesES[letter];
-                    // VexFlow 4 utiliza 3 para Bottom Justification
-                    sn.addModifier(new Annotation(name)
-                        .setVerticalJustification(3)
-                        .setFont("Nunito", 14, "bold")); 
+                    sn.addModifier(new Annotation(name).setVerticalJustification(3).setFont("Nunito", 14, "bold")); 
                 }
-
                 vfNotes.push(sn);
-
                 if (n.partOfBeam) {
                     tempBeamNotes.push(sn);
                     if (tempBeamNotes.length === 2) {
