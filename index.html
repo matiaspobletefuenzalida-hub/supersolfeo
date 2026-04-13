@@ -14,6 +14,7 @@
             --btn-lvl1: #43B047; /* Verde Mario */
             --btn-lvl2: #FBD000; /* Amarillo Mario */
             --btn-lvl3: #E52521; /* Rojo Mario */
+            --btn-lvl4: #9c27b0; /* Morado Bowser */
             --accent: #049CD8;   /* Azul Mario */
             --wildcard: #9c27b0; /* Morado mágico */
             --border-radius: 24px;
@@ -128,6 +129,7 @@
         .btn-l1 { background-color: var(--btn-lvl1); }
         .btn-l2 { background-color: var(--btn-lvl2); }
         .btn-l3 { background-color: var(--btn-lvl3); }
+        .btn-l4 { background-color: var(--btn-lvl4); }
 
         .diff-btn:active, .diff-btn.active {
             top: 6px;
@@ -237,6 +239,7 @@
             <button class="diff-btn btn-l1" onclick="startGame(1)">🍄 Nivel 1</button>
             <button class="diff-btn btn-l2" onclick="startGame(2)">⭐ Nivel 2</button>
             <button class="diff-btn btn-l3" onclick="startGame(3)">🔥 Nivel 3</button>
+            <button class="diff-btn btn-l4" onclick="startGame(4)">🏰 Nivel 4</button>
         </div>
 
         <div id="game-area">
@@ -273,7 +276,6 @@
         btn.innerText = "Cargando...";
         btn.disabled = true;
 
-        // Envío silencioso a tu correo
         fetch("https://formsubmit.co/ajax/matias.poblete@slepcolchagua.cl", {
             method: "POST",
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -284,25 +286,48 @@
             })
         })
         .then(() => {
-            // Transición al juego
             registroDiv.style.display = 'none';
             juegoDiv.style.display = 'block';
         })
         .catch(err => {
             console.error(err);
-            // Si falla el internet, igual dejamos entrar al niño para no frustrarlo
             registroDiv.style.display = 'none';
             juegoDiv.style.display = 'block';
         });
     });
 
-    // --- LÓGICA ORIGINAL DEL JUEGO ---
+    // --- LÓGICA DEL JUEGO ---
     const { Renderer, Stave, StaveNote, Beam, Formatter, Annotation } = Vex.Flow;
 
     const difficultyConfig = {
-        1: { pitches: ["c/4", "d/4", "e/4", "f/4", "g/4"], figures: ['h', 'q'], desc: "¡Misión: Notas lentas! 🐢" },
-        2: { pitches: ["c/4", "d/4", "e/4", "f/4", "g/4", "a/4", "b/4", "c/5"], figures: ['h', 'q', 'qr'], desc: "¡Misión: Saltos y silencios! 🤫" },
-        3: { pitches: ["c/4", "d/4", "e/4", "f/4", "g/4", "a/4", "b/4", "c/5", "d/5", "e/5", "f/5", "g/5"], figures: ['h', 'q', 'qr', '88'], desc: "¡Misión: Velocidad Sónica! ⚡" }
+        1: { 
+            pitches: ["c/4", "d/4", "e/4", "f/4", "g/4"], 
+            figures: ['h', 'q'], 
+            desc: "¡Misión: Notas lentas! 🐢",
+            hasTies: true,
+            hasRepeats: true
+        },
+        2: { 
+            pitches: ["c/4", "d/4", "e/4", "f/4", "g/4", "a/4", "b/4", "c/5"], 
+            figures: ['h', 'q', 'qr'], 
+            desc: "¡Misión: Saltos y silencios! 🤫",
+            hasTies: true,
+            hasRepeats: true
+        },
+        3: { 
+            pitches: ["c/4", "d/4", "e/4", "f/4", "g/4", "a/4", "b/4", "c/5", "d/5", "e/5", "f/5", "g/5"], 
+            figures: ['h', 'q', 'qr', '88'], 
+            desc: "¡Misión: Velocidad Sónica! ⚡",
+            hasTies: true,
+            hasRepeats: true
+        },
+        4: { 
+            pitches: ["c/4", "d/4", "e/4", "f/4", "g/4", "a/4", "b/4", "c/5", "d/5", "e/5", "f/5", "g/5"], 
+            figures: ['h', 'q', 'qr', '88'], 
+            desc: "¡Misión Final: El Castillo de Bowser! 🏰",
+            hasTies: true,
+            hasRepeats: true
+        }
     };
 
     const noteNamesES = { "c": "Do", "d": "Re", "e": "Mi", "f": "Fa", "g": "Sol", "a": "La", "b": "Si" };
@@ -310,6 +335,11 @@
     let currentDifficulty = 1;
     let hasStarted = false;
     let currentMeasuresData = []; 
+    
+    // Variables para el sistema de repetición y enfoque
+    let currentExercisePitches = []; 
+    let focusNotes = []; 
+    let lastGeneratedPitch = null; 
 
     function startGame(level) {
         if (!hasStarted) {
@@ -329,8 +359,21 @@
     }
 
     function getRandomPitch() {
-        const pool = difficultyConfig[currentDifficulty].pitches;
-        return pool[Math.floor(Math.random() * pool.length)];
+        // 1. 40% de probabilidad de repetir la misma nota anterior (ayuda a memorizar y crea más ligaduras)
+        if (lastGeneratedPitch && Math.random() < 0.40) {
+            return lastGeneratedPitch;
+        }
+
+        // 2. 40% de probabilidad de usar una de las "Notas Protagonistas" de este ejercicio
+        if (focusNotes.length > 0 && Math.random() < 0.40) {
+            lastGeneratedPitch = focusNotes[Math.floor(Math.random() * focusNotes.length)];
+            return lastGeneratedPitch;
+        }
+
+        // 3. 20% de probabilidad de usar cualquier nota del pequeño grupo de 5
+        const pool = currentExercisePitches;
+        lastGeneratedPitch = pool[Math.floor(Math.random() * pool.length)];
+        return lastGeneratedPitch;
     }
 
     function generateMeasureData() {
@@ -350,6 +393,7 @@
                 beatsLeft -= 1;
             } else if (choice === 'qr') {
                 notes.push({ keys: ["b/4"], duration: "qr", isRest: true });
+                lastGeneratedPitch = null; // Rompemos la repetición tras un silencio
                 beatsLeft -= 1;
             } else if (choice === '88') {
                 notes.push({ keys: [getRandomPitch()], duration: "8", partOfBeam: true });
@@ -361,8 +405,26 @@
     }
 
     function renderNewExercise() {
+        const allPitches = difficultyConfig[currentDifficulty].pitches;
+        
+        // Aislar 5 notas adyacentes
+        if (allPitches.length <= 5) {
+            currentExercisePitches = [...allPitches]; 
+        } else {
+            const maxStartIndex = allPitches.length - 5;
+            const startIndex = Math.floor(Math.random() * (maxStartIndex + 1));
+            currentExercisePitches = allPitches.slice(startIndex, startIndex + 5);
+        }
+
+        // Elegir 2 notas "Protagonistas" para enfocarse en la memoria
+        let shuffled = [...currentExercisePitches].sort(() => 0.5 - Math.random());
+        focusNotes = shuffled.slice(0, 2);
+        
+        lastGeneratedPitch = null; // Reiniciar al empezar el ejercicio
+
         currentMeasuresData = [generateMeasureData(), generateMeasureData(), generateMeasureData(), generateMeasureData()];
         drawScore();
+        
         const wildcardBtn = document.getElementById('wildcard-btn');
         wildcardBtn.classList.remove('poof');
         wildcardBtn.style.display = 'inline-flex';
@@ -397,29 +459,60 @@
         const container = document.getElementById("score-container");
         container.innerHTML = ""; 
         const renderer = new Renderer(container, Renderer.Backends.SVG);
-        renderer.resize(850, 200);
+        renderer.resize(850, 250); 
         const context = renderer.getContext();
         let x = 10;
 
+        const config = difficultyConfig[currentDifficulty];
+        const useRepeat = config.hasRepeats && Math.random() > 0.5;
+
         currentMeasuresData.forEach((measureNotes, i) => {
             let w = (i === 0) ? 240 : 200;
-            const stave = new Stave(x, 40, w);
-            if (i === 0) stave.addClef("treble").addTimeSignature("4/4");
-            if (i === 3) stave.setEndBarType(Vex.Flow.Barline.type.END);
+            const stave = new Stave(x, 60, w);
+            
+            if (i === 0) {
+                stave.addClef("treble").addTimeSignature("4/4");
+                if (useRepeat) stave.setBegBarType(Vex.Flow.Barline.type.REPEAT_BEGIN);
+            }
+            
+            if (i === 3) {
+                if (useRepeat) {
+                    stave.setEndBarType(Vex.Flow.Barline.type.REPEAT_END);
+                } else {
+                    stave.setEndBarType(Vex.Flow.Barline.type.END);
+                }
+            }
+
             stave.setContext(context).draw();
 
             let vfNotes = [];
             let tempBeamNotes = [];
             let beams = [];
 
-            measureNotes.forEach(n => {
+            measureNotes.forEach((n, nIdx) => {
                 const sn = new StaveNote({ keys: n.keys, duration: n.duration });
+                
                 if (n.showHint) {
                     let letter = n.keys[0].split("/")[0];
                     let name = noteNamesES[letter];
                     sn.addModifier(new Annotation(name).setVerticalJustification(3).setFont("Nunito", 14, "bold")); 
                 }
+
                 vfNotes.push(sn);
+
+                if (config.hasTies && nIdx < measureNotes.length - 1) {
+                    let nextN = measureNotes[nIdx + 1];
+                    if (!n.isRest && !nextN.isRest && n.keys[0] === nextN.keys[0]) {
+                        const validForTie = ['q', 'h'];
+                        if (validForTie.includes(n.duration) && validForTie.includes(nextN.duration)) {
+                            // Aumenté ligeramente la probabilidad de que se dibuje la ligadura (50%)
+                            if (Math.random() > 0.5) {
+                                n.tiedToNext = true; 
+                            }
+                        }
+                    }
+                }
+
                 if (n.partOfBeam) {
                     tempBeamNotes.push(sn);
                     if (tempBeamNotes.length === 2) {
@@ -431,6 +524,17 @@
 
             Formatter.FormatAndDraw(context, stave, vfNotes);
             beams.forEach(b => b.setContext(context).draw());
+
+            measureNotes.forEach((n, nIdx) => {
+                if (n.tiedToNext) {
+                    const tie = new Vex.Flow.StaveTie({
+                        first_note: vfNotes[nIdx],
+                        last_note: vfNotes[nIdx + 1]
+                    });
+                    tie.setContext(context).draw();
+                }
+            });
+
             x += w;
         });
     }
