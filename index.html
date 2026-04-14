@@ -192,22 +192,49 @@
 </div>
 
 <script>
-    // --- LÓGICA DE FORMSUBMIT ---
+    // --- VARIABLES GLOBALES PARA REGISTRO ---
+    let nombreEstudianteActual = "";
+
+    // --- LÓGICA DE FORMSUBMIT CENTRALIZADA ---
+    function enviarReporteFormSubmit(accion, asuntoPersonalizado) {
+        if (!nombreEstudianteActual) return; // No enviar si no hay nombre
+
+        fetch("https://formsubmit.co/ajax/matias.poblete@slepcolchagua.cl", {
+            method: "POST", 
+            headers: { 
+                'Content-Type': 'application/json', 
+                'Accept': 'application/json' 
+            },
+            body: JSON.stringify({ 
+                Estudiante: nombreEstudianteActual, 
+                Accion: accion,
+                Nivel_Dificultad: currentDifficulty,
+                Canciones_Generadas: cancionesGeneradas,
+                _subject: asuntoPersonalizado 
+            })
+        })
+        .then(response => console.log("Reporte enviado a FormSubmit: " + accion))
+        .catch(err => console.error("Error al enviar a FormSubmit:", err));
+    }
+
     const formInicio = document.getElementById('form-inicio');
     const registroDiv = document.getElementById('registro-estudiante');
     const juegoDiv = document.getElementById('game-content');
 
     formInicio.addEventListener('submit', function(e) {
         e.preventDefault();
-        const nombre = document.getElementById('nombre-niño').value;
+        nombreEstudianteActual = document.getElementById('nombre-niño').value;
         const btn = document.getElementById('btn-comenzar');
         btn.innerText = "Cargando..."; btn.disabled = true;
 
-        fetch("https://formsubmit.co/ajax/matias.poblete@slepcolchagua.cl", {
-            method: "POST", headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-            body: JSON.stringify({ Estudiante: nombre, Accion: "Inició el juego de Solfeo", _subject: "Nuevo Estudiante: " + nombre })
-        }).then(() => { registroDiv.style.display = 'none'; juegoDiv.style.display = 'block'; })
-          .catch(err => { console.error(err); registroDiv.style.display = 'none'; juegoDiv.style.display = 'block'; });
+        // Enviamos el correo de inicio de sesión
+        enviarReporteFormSubmit("Inició el juego de Solfeo", "🚀 Nuevo Estudiante Ingresó: " + nombreEstudianteActual);
+
+        // Ocultar formulario y mostrar juego (simulamos que carga rápido)
+        setTimeout(() => {
+            registroDiv.style.display = 'none'; 
+            juegoDiv.style.display = 'block';
+        }, 500);
     });
 
     // --- MOTOR DE MINIJUEGOS ARCADE 8-BIT ---
@@ -429,6 +456,9 @@
         
         document.getElementById('arcade-controls').style.display = 'none';
         document.getElementById('btn-cerrar-pausa').style.display = 'flex';
+
+        // Enviamos correo al profesor notificando que el estudiante superó un minijuego/nivel
+        enviarReporteFormSubmit(`Superó Minijuego: ${currentGame.title}`, `🎮 Nivel Superado: ${nombreEstudianteActual}`);
     }
 
     function cerrarArcade() {
@@ -457,6 +487,12 @@
 
     function startGame(level) {
         if (!hasStarted) { document.getElementById('game-area').style.display = 'flex'; hasStarted = true; }
+        
+        // Enviamos correo si el estudiante cambia la dificultad
+        if (hasStarted && currentDifficulty !== level && nombreEstudianteActual !== "") {
+            enviarReporteFormSubmit(`Inició Nivel ${level}`, `📈 Cambio de Nivel: ${nombreEstudianteActual}`);
+        }
+
         setDifficulty(level);
     }
 
