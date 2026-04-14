@@ -199,7 +199,8 @@
     function enviarReporteFormSubmit(accion, asuntoPersonalizado) {
         if (!nombreEstudianteActual) return; // No enviar si no hay nombre
 
-        fetch("https://formsubmit.co/ajax/matias.poblete@slepcolchagua.cl", {
+        // ¡CORREO ACTUALIZADO AQUÍ!
+        fetch("https://formsubmit.co/ajax/matiaspobletefuenzalida@gmail.com", {
             method: "POST", 
             headers: { 
                 'Content-Type': 'application/json', 
@@ -628,6 +629,7 @@
                     tie.setContext(context).draw();
                 }
             });
+
             x += w;
         });
     }
