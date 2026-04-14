@@ -5,18 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Super Solfeo - ¡Aventura Musical!</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;900&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
     <style>
         :root {
             --bg-color: #fff9c4; 
             --surface: #ffffff;
             --text-main: #2c3e50;
-            --btn-lvl1: #43B047; /* Verde Mario */
-            --btn-lvl2: #FBD000; /* Amarillo Mario */
-            --btn-lvl3: #E52521; /* Rojo Mario */
-            --btn-lvl4: #9c27b0; /* Morado Bowser */
-            --accent: #049CD8;   /* Azul Mario */
-            --wildcard: #9c27b0; /* Morado mágico */
+            --btn-lvl1: #43B047; 
+            --btn-lvl2: #FBD000; 
+            --btn-lvl3: #E52521; 
+            --btn-lvl4: #9c27b0; 
+            --accent: #049CD8;   
+            --wildcard: #9c27b0; 
             --border-radius: 24px;
         }
 
@@ -47,170 +48,77 @@
             text-align: center;
         }
 
-        /* --- PANTALLA DE REGISTRO --- */
-        #registro-estudiante {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
+        #registro-estudiante { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .input-mario { padding: 15px 25px; font-size: 1.2rem; border: 3px solid #000; border-radius: 50px; font-family: 'Nunito', sans-serif; width: 80%; max-width: 400px; text-align: center; outline: none; }
 
-        .input-mario {
-            padding: 15px 25px;
-            font-size: 1.2rem;
-            border: 3px solid #000;
-            border-radius: 50px;
-            font-family: 'Nunito', sans-serif;
-            width: 80%;
-            max-width: 400px;
-            text-align: center;
-            outline: none;
-        }
-
-        /* --- ESTILO SUPER MARIO PARA EL TÍTULO --- */
         h1.mario-title { 
-            font-family: 'Fredoka', sans-serif; 
-            font-weight: 900; 
-            font-size: 4.5rem; 
-            margin-bottom: 0.5rem; 
-            letter-spacing: 2px;
-            line-height: 1.1;
-            text-shadow: 
-                -4px -4px 0 #000,  
-                 4px -4px 0 #000,
-                -4px  4px 0 #000,
-                 4px  4px 0 #000,
-                 0px  6px 0 #000,
-                 0px 15px 10px rgba(0,0,0,0.3);
+            font-family: 'Fredoka', sans-serif; font-weight: 900; font-size: 4.5rem; margin-bottom: 0.5rem; letter-spacing: 2px; line-height: 1.1;
+            text-shadow: -4px -4px 0 #000, 4px -4px 0 #000, -4px 4px 0 #000, 4px 4px 0 #000, 0px 6px 0 #000, 0px 15px 10px rgba(0,0,0,0.3);
         }
-
         .mario-title span { display: inline-block; }
         .mario-title span:nth-child(even) { transform: rotate(3deg) translateY(-3px); }
         .mario-title span:nth-child(odd) { transform: rotate(-3deg) translateY(3px); }
+        .m-red { color: #E52521; } .m-blue { color: #049CD8; } .m-yellow { color: #FBD000; } .m-green { color: #43B047; }
 
-        .m-red { color: #E52521; }
-        .m-blue { color: #049CD8; }
-        .m-yellow { color: #FBD000; }
-        .m-green { color: #43B047; }
+        p.subtitle { font-weight: 900; color: #546e7a; margin-top: 10px; margin-bottom: 2rem; font-size: 1.4rem; }
 
-        p.subtitle { 
-            font-weight: 900; 
-            color: #546e7a; 
-            margin-top: 10px;
-            margin-bottom: 2rem; 
-            font-size: 1.4rem; 
-        }
+        .difficulty-selector { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 1.5rem; }
+        .diff-btn { font-family: 'Fredoka', sans-serif; font-size: 1.3rem; font-weight: 700; color: white; border: none; padding: 12px 28px; border-radius: 50px; cursor: pointer; transition: all 0.2s; position: relative; text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; border: 3px solid #000; box-shadow: 0 6px 0px #000; }
+        .btn-l1 { background-color: var(--btn-lvl1); } .btn-l2 { background-color: var(--btn-lvl2); } .btn-l3 { background-color: var(--btn-lvl3); } .btn-l4 { background-color: var(--btn-lvl4); }
+        .diff-btn:active, .diff-btn.active { top: 6px; box-shadow: 0 0px 0px #000; }
 
-        .difficulty-selector {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 1.5rem;
-        }
+        #game-content { display: none; }
+        #game-area { display: none; width: 100%; flex-direction: column; align-items: center; animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
 
-        .diff-btn {
-            font-family: 'Fredoka', sans-serif;
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: white;
-            border: none;
-            padding: 12px 28px;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-            position: relative;
-            top: 0;
-            text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
-            border: 3px solid #000;
-            box-shadow: 0 6px 0px #000;
-        }
+        @keyframes popIn { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
 
-        .btn-l1 { background-color: var(--btn-lvl1); }
-        .btn-l2 { background-color: var(--btn-lvl2); }
-        .btn-l3 { background-color: var(--btn-lvl3); }
-        .btn-l4 { background-color: var(--btn-lvl4); }
-
-        .diff-btn:active, .diff-btn.active {
-            top: 6px;
-            box-shadow: 0 0px 0px #000;
-        }
-
-        #game-content { display: none; } /* Oculto inicialmente */
-
-        #game-area {
-            display: none;
-            width: 100%;
-            flex-direction: column;
-            align-items: center;
-            animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        @keyframes popIn {
-            0% { opacity: 0; transform: scale(0.8); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-
-        #score-container {
-            width: 100%;
-            background: #fff;
-            padding: 30px 10px;
-            margin: 2rem 0;
-            border: 6px solid #000;
-            border-radius: var(--border-radius);
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
-            display: flex;
-            justify-content: center;
-            overflow-x: auto;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-            min-height: 60px;
-        }
-
-        .btn-main {
-            border: 3px solid #000;
-            padding: 16px 32px;
-            font-size: 1.3rem;
-            font-weight: 900;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.1s;
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            font-family: 'Fredoka', sans-serif;
-            color: white;
-            position: relative;
-            top: 0;
-            text-shadow: 1px 1px 0 #000;
-        }
-
+        #score-container { width: 100%; background: #fff; padding: 30px 10px; margin: 2rem 0; border: 6px solid #000; border-radius: var(--border-radius); box-shadow: inset 0 0 20px rgba(0,0,0,0.05); display: flex; justify-content: center; overflow-x: auto; }
+        .action-buttons { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; min-height: 60px; }
+        .btn-main { border: 3px solid #000; padding: 16px 32px; font-size: 1.3rem; font-weight: 900; border-radius: 50px; cursor: pointer; transition: all 0.1s; display: inline-flex; align-items: center; gap: 12px; font-family: 'Fredoka', sans-serif; color: white; position: relative; text-shadow: 1px 1px 0 #000; }
         .btn-refresh { background-color: var(--accent); box-shadow: 0 8px 0px #000; }
         .btn-wildcard { background-color: var(--wildcard); box-shadow: 0 8px 0px #000; }
-
         .btn-main:active { top: 8px; box-shadow: 0 0px 0px #000; }
+        .btn-wildcard.poof { animation: vanishMagic 0.6s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards; pointer-events: none; }
 
-        .btn-wildcard.poof {
-            animation: vanishMagic 0.6s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards;
-            pointer-events: none;
-        }
+        @keyframes vanishMagic { 0% { transform: scale(1) rotate(0deg); opacity: 1; } 100% { transform: scale(0) rotate(180deg); opacity: 0; } }
 
-        @keyframes vanishMagic {
-            0% { transform: scale(1) rotate(0deg); opacity: 1; }
-            100% { transform: scale(0) rotate(180deg); opacity: 0; }
-        }
+        .credito-profesor { margin-top: 2rem; font-weight: 900; font-size: 1.2rem; color: #546e7a; }
 
-        .credito-profesor {
-            margin-top: 2rem;
-            font-weight: 900;
-            font-size: 1.2rem;
-            color: #546e7a;
+        /* --- MODAL ARCADE --- */
+        #pausa-activa-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center;
+            z-index: 1000; padding: 10px; box-sizing: border-box; backdrop-filter: blur(5px);
         }
+        .arcade-cabinet {
+            background: #2c3e50; padding: 20px; border-radius: 20px; border: 6px solid #000;
+            box-shadow: 10px 10px 0px #FBD000, inset 0 0 20px rgba(0,0,0,0.5);
+            max-width: 400px; width: 100%; display: flex; flex-direction: column; align-items: center;
+            animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-family: 'Press Start 2P', cursive;
+        }
+        .arcade-title { font-size: 1rem; color: #fff; margin-bottom: 10px; text-shadow: 2px 2px 0 #000; text-align: center; }
+        .arcade-screen {
+            background: #87CEEB; width: 100%; max-width: 300px; height: 300px; border: 8px solid #000;
+            border-radius: 10px; position: relative; overflow: hidden;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.4);
+            image-rendering: pixelated;
+        }
+        #gameCanvas { display: block; width: 100%; height: 100%; }
+        
+        .arcade-controls {
+            display: flex; justify-content: space-between; width: 100%; max-width: 300px; margin-top: 20px;
+        }
+        .d-pad { display: grid; grid-template-columns: repeat(3, 40px); grid-template-rows: repeat(3, 40px); gap: 5px; }
+        .d-btn { background: #E52521; border: 3px solid #000; border-radius: 10px; font-size: 1.2rem; cursor: pointer; color: white; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 0 #000; transition: transform 0.1s; }
+        .d-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #000; }
+        .d-up { grid-column: 2; grid-row: 1; } .d-left { grid-column: 1; grid-row: 2; } .d-right { grid-column: 3; grid-row: 2; } .d-down { grid-column: 2; grid-row: 3; }
+        
+        .action-pad { display: flex; align-items: center; justify-content: center; }
+        .a-btn { background: #FBD000; border: 3px solid #000; width: 60px; height: 60px; border-radius: 50%; font-weight: bold; cursor: pointer; box-shadow: 0 5px 0 #000; transition: transform 0.1s; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; text-shadow: none; color: #000;}
+        .a-btn:active { transform: translateY(5px); box-shadow: 0 0 0 #000; }
+
+        #btn-cerrar-pausa { margin-top: 15px; width: 100%; }
     </style>
 </head>
 <body>
@@ -262,6 +170,27 @@
     </div>
 </div>
 
+<div id="pausa-activa-modal">
+    <div class="arcade-cabinet">
+        <h2 class="arcade-title" id="arcade-title">CARGANDO...</h2>
+        <div class="arcade-screen">
+            <canvas id="gameCanvas" width="300" height="300"></canvas>
+        </div>
+        <div class="arcade-controls" id="arcade-controls">
+            <div class="d-pad">
+                <button class="d-btn d-up" onmousedown="pressKey('ArrowUp')" onmouseup="releaseKey('ArrowUp')" ontouchstart="pressKey('ArrowUp')" ontouchend="releaseKey('ArrowUp')">▲</button>
+                <button class="d-btn d-left" onmousedown="pressKey('ArrowLeft')" onmouseup="releaseKey('ArrowLeft')" ontouchstart="pressKey('ArrowLeft')" ontouchend="releaseKey('ArrowLeft')">◀</button>
+                <button class="d-btn d-right" onmousedown="pressKey('ArrowRight')" onmouseup="releaseKey('ArrowRight')" ontouchstart="pressKey('ArrowRight')" ontouchend="releaseKey('ArrowRight')">▶</button>
+                <button class="d-btn d-down" onmousedown="pressKey('ArrowDown')" onmouseup="releaseKey('ArrowDown')" ontouchstart="pressKey('ArrowDown')" ontouchend="releaseKey('ArrowDown')">▼</button>
+            </div>
+            <div class="action-pad">
+                <button class="a-btn" onmousedown="pressKey(' ')" onmouseup="releaseKey(' ')" ontouchstart="pressKey(' ')" ontouchend="releaseKey(' ')">SALTAR</button>
+            </div>
+        </div>
+        <button id="btn-cerrar-pausa" class="btn-main" style="background-color: #43B047; display: none;" onclick="cerrarArcade()">¡Volver!</button>
+    </div>
+</div>
+
 <script>
     // --- LÓGICA DE FORMSUBMIT ---
     const formInicio = document.getElementById('form-inicio');
@@ -272,62 +201,249 @@
         e.preventDefault();
         const nombre = document.getElementById('nombre-niño').value;
         const btn = document.getElementById('btn-comenzar');
-        
-        btn.innerText = "Cargando...";
-        btn.disabled = true;
+        btn.innerText = "Cargando..."; btn.disabled = true;
 
         fetch("https://formsubmit.co/ajax/matias.poblete@slepcolchagua.cl", {
-            method: "POST",
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-            body: JSON.stringify({
-                Estudiante: nombre,
-                Accion: "Inició el juego de Solfeo",
-                _subject: "Nuevo Estudiante: " + nombre
-            })
-        })
-        .then(() => {
-            registroDiv.style.display = 'none';
-            juegoDiv.style.display = 'block';
-        })
-        .catch(err => {
-            console.error(err);
-            registroDiv.style.display = 'none';
-            juegoDiv.style.display = 'block';
-        });
+            method: "POST", headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ Estudiante: nombre, Accion: "Inició el juego de Solfeo", _subject: "Nuevo Estudiante: " + nombre })
+        }).then(() => { registroDiv.style.display = 'none'; juegoDiv.style.display = 'block'; })
+          .catch(err => { console.error(err); registroDiv.style.display = 'none'; juegoDiv.style.display = 'block'; });
     });
 
-    // --- LÓGICA DEL JUEGO ---
+    // --- MOTOR DE MINIJUEGOS ARCADE 8-BIT ---
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = false; // Forzar estética pixelada
+    let animationId;
+    let currentGame = null;
+    let keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, ' ': false };
+    
+    // Listeners Teclado
+    window.addEventListener('keydown', e => { if (keys.hasOwnProperty(e.key)) keys[e.key] = true; });
+    window.addEventListener('keyup', e => { if (keys.hasOwnProperty(e.key)) keys[e.key] = false; });
+    
+    // Controles Touch/Botones
+    function pressKey(k) { keys[k] = true; event.preventDefault(); }
+    function releaseKey(k) { keys[k] = false; event.preventDefault(); }
+
+    // Función auxiliar para dibujar notas pixeladas
+    function drawPixelNote(x, y) {
+        ctx.fillStyle = "#000";
+        ctx.fillRect(x+8, y+2, 4, 16); // Plica
+        ctx.fillRect(x+2, y+12, 10, 8); // Cabeza
+        ctx.fillRect(x, y+14, 2, 4); // Borde izquierdo cabeza
+        ctx.fillRect(x+12, y+14, 2, 4); // Borde derecho cabeza
+    }
+
+    const games = {
+        snake: {
+            title: "🐍 Snake Musical",
+            init: function() {
+                this.grid = 15;
+                this.snake = [{x: 10, y: 10}];
+                this.dx = 0; this.dy = 0;
+                this.food = {x: 5, y: 5};
+                this.score = 0; this.target = 5;
+                this.frameCount = 0;
+            },
+            update: function() {
+                if (keys.ArrowLeft && this.dx === 0) { this.dx = -1; this.dy = 0; }
+                if (keys.ArrowRight && this.dx === 0) { this.dx = 1; this.dy = 0; }
+                if (keys.ArrowUp && this.dy === 0) { this.dx = 0; this.dy = -1; }
+                if (keys.ArrowDown && this.dy === 0) { this.dx = 0; this.dy = 1; }
+
+                if (++this.frameCount < 8) return; // Velocidad
+                this.frameCount = 0;
+
+                const head = { x: this.snake[0].x + this.dx, y: this.snake[0].y + this.dy };
+                
+                // Bordes
+                if(head.x < 0) head.x = 19; if(head.x >= 20) head.x = 0;
+                if(head.y < 0) head.y = 19; if(head.y >= 20) head.y = 0;
+                
+                this.snake.unshift(head);
+                if (head.x === this.food.x && head.y === this.food.y) {
+                    this.score++;
+                    this.food = { x: Math.floor(Math.random()*20), y: Math.floor(Math.random()*20) };
+                    if (this.score >= this.target) gameWon();
+                } else {
+                    this.snake.pop();
+                }
+            },
+            draw: function() {
+                ctx.fillStyle = "#87CEEB"; ctx.fillRect(0,0, 300, 300);
+                ctx.fillStyle = "#43B047"; // Snake
+                this.snake.forEach((p, i) => {
+                    ctx.fillRect(p.x * this.grid, p.y * this.grid, this.grid-1, this.grid-1);
+                    if (i === 0) { // Ojo pixelado
+                        ctx.fillStyle = "#000";
+                        ctx.fillRect(p.x * this.grid + 4, p.y * this.grid + 4, 3, 3);
+                        ctx.fillStyle = "#43B047";
+                    }
+                });
+                drawPixelNote(this.food.x * this.grid - 2, this.food.y * this.grid);
+                ctx.fillStyle = "#000"; ctx.font = "12px 'Press Start 2P'"; ctx.textAlign = "left";
+                ctx.fillText(`Notas:${this.score}/${this.target}`, 10, 20);
+            }
+        },
+        catcher: {
+            title: "✈️ Avión Caza-Notas",
+            init: function() {
+                this.p = { x: 130, y: 260, w: 40, h: 40 };
+                this.notes = [];
+                this.score = 0; this.target = 10;
+                this.timer = 0;
+            },
+            update: function() {
+                if (keys.ArrowLeft) this.p.x -= 5;
+                if (keys.ArrowRight) this.p.x += 5;
+                if (this.p.x < 0) this.p.x = 0;
+                if (this.p.x > 260) this.p.x = 260;
+
+                this.timer++;
+                if (this.timer % 30 === 0) {
+                    this.notes.push({ x: Math.random() * 260, y: -20, speed: 2 + Math.random() * 2 });
+                }
+
+                for (let i = this.notes.length - 1; i >= 0; i--) {
+                    let n = this.notes[i];
+                    n.y += n.speed;
+                    // Colisión
+                    if (n.y > 240 && n.x > this.p.x - 20 && n.x < this.p.x + this.p.w) {
+                        this.score++;
+                        this.notes.splice(i, 1);
+                        if (this.score >= this.target) gameWon();
+                    } else if (n.y > 300) {
+                        this.notes.splice(i, 1);
+                    }
+                }
+            },
+            draw: function() {
+                ctx.fillStyle = "#87CEEB"; ctx.fillRect(0,0, 300, 300);
+                // Avión pixelado
+                ctx.fillStyle = "#E52521"; ctx.fillRect(this.p.x+10, this.p.y+10, 20, 20); // Cuerpo
+                ctx.fillStyle = "#049CD8"; ctx.fillRect(this.p.x, this.p.y+20, 40, 10); // Alas
+                ctx.fillStyle = "#000"; ctx.fillRect(this.p.x+15, this.p.y+15, 10, 10); // Cabina
+
+                this.notes.forEach(n => drawPixelNote(n.x, n.y));
+                ctx.fillStyle = "#000"; ctx.font = "12px 'Press Start 2P'"; ctx.textAlign = "left";
+                ctx.fillText(`Notas:${this.score}/${this.target}`, 10, 20);
+            }
+        },
+        jumper: {
+            title: "🍄 Súper Salto",
+            init: function() {
+                this.p = { x: 30, y: 230, vy: 0, ground: 230, jump: -12 };
+                this.obs = [];
+                this.score = 0; this.target = 5;
+                this.timer = 0; this.gravity = 0.6;
+            },
+            update: function() {
+                if ((keys.ArrowUp || keys[' ']) && this.p.y === this.p.ground) {
+                    this.p.vy = this.p.jump;
+                }
+                this.p.vy += this.gravity;
+                this.p.y += this.p.vy;
+                if (this.p.y > this.p.ground) { this.p.y = this.p.ground; this.p.vy = 0; }
+
+                this.timer++;
+                if (this.timer > 80 && Math.random() < 0.02) {
+                    this.obs.push({ x: 300, y: 235, passed: false });
+                    this.timer = 0;
+                }
+
+                for (let i = this.obs.length - 1; i >= 0; i--) {
+                    let o = this.obs[i];
+                    o.x -= 4;
+                    // Hitbox simple
+                    if (Math.abs(this.p.x - o.x) < 20 && Math.abs(this.p.y - o.y) < 20) {
+                        // Perdió, reinicia puntaje
+                        this.score = 0;
+                        this.obs = [];
+                        break;
+                    }
+                    if (!o.passed && o.x < this.p.x) {
+                        o.passed = true;
+                        this.score++;
+                        if (this.score >= this.target) gameWon();
+                    }
+                    if (o.x < -20) this.obs.splice(i, 1);
+                }
+            },
+            draw: function() {
+                ctx.fillStyle = "#87CEEB"; ctx.fillRect(0,0, 300, 300);
+                // Piso pixelado
+                ctx.fillStyle = "#8B4513"; ctx.fillRect(0, 260, 300, 40);
+                ctx.fillStyle = "#43B047"; ctx.fillRect(0, 260, 300, 10);
+                
+                // Champiñón pixelado
+                ctx.fillStyle = "#E52521"; ctx.fillRect(this.p.x+5, this.p.y+5, 20, 20); // Sombrero
+                ctx.fillStyle = "#FFF"; ctx.fillRect(this.p.x+10, this.p.y+10, 10, 10); // Puntos sombrero
+                ctx.fillStyle = "#FFF9C4"; ctx.fillRect(this.p.x+10, this.p.y+25, 10, 10); // Tallo
+
+                // Obstáculo pixelado
+                this.obs.forEach(o => {
+                    ctx.fillStyle = "#000"; ctx.fillRect(o.x+5, o.y+5, 20, 20); // Cuerpo bomba
+                    ctx.fillStyle = "#FFF"; ctx.fillRect(o.x+10, o.y+10, 3, 10); // Mecha
+                });
+                
+                ctx.fillStyle = "#000"; ctx.font = "12px 'Press Start 2P'"; ctx.textAlign = "left";
+                ctx.fillText(`Saltos:${this.score}/${this.target}`, 10, 20);
+            }
+        }
+    };
+
+    let cancionesGeneradas = 0;
+    let gameIsWon = false;
+
+    function iniciarArcade() {
+        const gameKeys = Object.keys(games);
+        const randomGame = gameKeys[Math.floor(Math.random() * gameKeys.length)];
+        currentGame = games[randomGame];
+        
+        document.getElementById('arcade-title').innerText = currentGame.title;
+        document.getElementById('arcade-controls').style.display = 'flex';
+        document.getElementById('btn-cerrar-pausa').style.display = 'none';
+        document.getElementById('pausa-activa-modal').style.display = 'flex';
+        
+        gameIsWon = false;
+        currentGame.init();
+        cancelAnimationFrame(animationId);
+        gameLoop();
+    }
+
+    function gameLoop() {
+        if (!gameIsWon) {
+            currentGame.update();
+            currentGame.draw();
+            animationId = requestAnimationFrame(gameLoop);
+        }
+    }
+
+    function gameWon() {
+        gameIsWon = true;
+        ctx.fillStyle = "rgba(0,0,0,0.8)"; ctx.fillRect(0,0,300,300);
+        ctx.fillStyle = "#FBD000"; ctx.font = "bold 20px 'Press Start 2P'"; ctx.textAlign = "center";
+        ctx.fillText("¡MISIÓN", 150, 140);
+        ctx.fillText("SUPERADA!", 150, 180);
+        
+        document.getElementById('arcade-controls').style.display = 'none';
+        document.getElementById('btn-cerrar-pausa').style.display = 'flex';
+    }
+
+    function cerrarArcade() {
+        document.getElementById('pausa-activa-modal').style.display = 'none';
+        cancelAnimationFrame(animationId);
+    }
+
+    // --- LÓGICA DE SUPER SOLFEO (VexFlow) ---
     const { Renderer, Stave, StaveNote, Beam, Formatter, Annotation } = Vex.Flow;
 
     const difficultyConfig = {
-        1: { 
-            pitches: ["c/4", "d/4", "e/4", "f/4", "g/4"], 
-            figures: ['h', 'q'], 
-            desc: "¡Misión: Notas lentas! 🐢",
-            hasTies: true,
-            hasRepeats: true
-        },
-        2: { 
-            pitches: ["c/4", "d/4", "e/4", "f/4", "g/4", "a/4", "b/4", "c/5"], 
-            figures: ['h', 'q', 'qr'], 
-            desc: "¡Misión: Saltos y silencios! 🤫",
-            hasTies: true,
-            hasRepeats: true
-        },
-        3: { 
-            pitches: ["c/4", "d/4", "e/4", "f/4", "g/4", "a/4", "b/4", "c/5", "d/5", "e/5", "f/5", "g/5"], 
-            figures: ['h', 'q', 'qr', '88'], 
-            desc: "¡Misión: Velocidad Sónica! ⚡",
-            hasTies: true,
-            hasRepeats: true
-        },
-        4: { 
-            pitches: ["c/4", "d/4", "e/4", "f/4", "g/4", "a/4", "b/4", "c/5", "d/5", "e/5", "f/5", "g/5"], 
-            figures: ['h', 'q', 'qr', '88'], 
-            desc: "¡Misión Final: El Castillo de Bowser! 🏰",
-            hasTies: true,
-            hasRepeats: true
-        }
+        1: { pitches: ["c/4", "d/4", "e/4", "f/4", "g/4"], figures: ['h', 'q'], desc: "¡Misión: Notas lentas! 🐢", hasTies: true, hasRepeats: true },
+        2: { pitches: ["c/4", "d/4", "e/4", "f/4", "g/4", "a/4", "b/4", "c/5"], figures: ['h', 'q', 'qr'], desc: "¡Misión: Saltos y silencios! 🤫", hasTies: true, hasRepeats: true },
+        3: { pitches: ["c/4", "d/4", "e/4", "f/4", "g/4", "a/4", "b/4", "c/5", "d/5", "e/5", "f/5", "g/5"], figures: ['h', 'q', 'qr', '88'], desc: "¡Misión: Velocidad Sónica! ⚡", hasTies: true, hasRepeats: true },
+        4: { pitches: ["c/4", "d/4", "e/4", "f/4", "g/4", "a/4", "b/4", "c/5", "d/5", "e/5", "f/5", "g/5"], figures: ['h', 'q', 'qr', '88'], desc: "¡Misión Final: El Castillo de Bowser! 🏰", hasTies: true, hasRepeats: true }
     };
 
     const noteNamesES = { "c": "Do", "d": "Re", "e": "Mi", "f": "Fa", "g": "Sol", "a": "La", "b": "Si" };
@@ -335,42 +451,28 @@
     let currentDifficulty = 1;
     let hasStarted = false;
     let currentMeasuresData = []; 
-    
-    // Variables para el sistema de repetición y enfoque
     let currentExercisePitches = []; 
     let focusNotes = []; 
     let lastGeneratedPitch = null; 
 
     function startGame(level) {
-        if (!hasStarted) {
-            document.getElementById('game-area').style.display = 'flex';
-            hasStarted = true;
-        }
+        if (!hasStarted) { document.getElementById('game-area').style.display = 'flex'; hasStarted = true; }
         setDifficulty(level);
     }
 
     function setDifficulty(level) {
         currentDifficulty = level;
-        document.querySelectorAll('.diff-btn').forEach((btn, i) => {
-            btn.classList.toggle('active', (i + 1) === level);
-        });
+        document.querySelectorAll('.diff-btn').forEach((btn, i) => btn.classList.toggle('active', (i + 1) === level));
         document.getElementById('level-description').textContent = difficultyConfig[level].desc;
         renderNewExercise();
     }
 
     function getRandomPitch() {
-        // 1. 40% de probabilidad de repetir la misma nota anterior (ayuda a memorizar y crea más ligaduras)
-        if (lastGeneratedPitch && Math.random() < 0.40) {
-            return lastGeneratedPitch;
-        }
-
-        // 2. 40% de probabilidad de usar una de las "Notas Protagonistas" de este ejercicio
+        if (lastGeneratedPitch && Math.random() < 0.40) return lastGeneratedPitch;
         if (focusNotes.length > 0 && Math.random() < 0.40) {
             lastGeneratedPitch = focusNotes[Math.floor(Math.random() * focusNotes.length)];
             return lastGeneratedPitch;
         }
-
-        // 3. 20% de probabilidad de usar cualquier nota del pequeño grupo de 5
         const pool = currentExercisePitches;
         lastGeneratedPitch = pool[Math.floor(Math.random() * pool.length)];
         return lastGeneratedPitch;
@@ -385,42 +487,32 @@
             let available = allowed.filter(f => (f==='h' ? beatsLeft>=2 : beatsLeft>=1));
             let choice = available[Math.floor(Math.random() * available.length)];
 
-            if (choice === 'h') {
-                notes.push({ keys: [getRandomPitch()], duration: "h" });
-                beatsLeft -= 2;
-            } else if (choice === 'q') {
-                notes.push({ keys: [getRandomPitch()], duration: "q" });
-                beatsLeft -= 1;
-            } else if (choice === 'qr') {
-                notes.push({ keys: ["b/4"], duration: "qr", isRest: true });
-                lastGeneratedPitch = null; // Rompemos la repetición tras un silencio
-                beatsLeft -= 1;
-            } else if (choice === '88') {
-                notes.push({ keys: [getRandomPitch()], duration: "8", partOfBeam: true });
-                notes.push({ keys: [getRandomPitch()], duration: "8", partOfBeam: true });
-                beatsLeft -= 1;
-            }
+            if (choice === 'h') { notes.push({ keys: [getRandomPitch()], duration: "h" }); beatsLeft -= 2; } 
+            else if (choice === 'q') { notes.push({ keys: [getRandomPitch()], duration: "q" }); beatsLeft -= 1; } 
+            else if (choice === 'qr') { notes.push({ keys: ["b/4"], duration: "qr", isRest: true }); lastGeneratedPitch = null; beatsLeft -= 1; } 
+            else if (choice === '88') { notes.push({ keys: [getRandomPitch()], duration: "8", partOfBeam: true }); notes.push({ keys: [getRandomPitch()], duration: "8", partOfBeam: true }); beatsLeft -= 1; }
         }
         return notes;
     }
 
     function renderNewExercise() {
+        // --- ACTIVADOR DE MINIJUEGOS CADA 5 ---
+        cancionesGeneradas++;
+        if (cancionesGeneradas % 5 === 0) {
+            iniciarArcade();
+        }
+
         const allPitches = difficultyConfig[currentDifficulty].pitches;
-        
-        // Aislar 5 notas adyacentes
-        if (allPitches.length <= 5) {
-            currentExercisePitches = [...allPitches]; 
-        } else {
+        if (allPitches.length <= 5) { currentExercisePitches = [...allPitches]; } 
+        else {
             const maxStartIndex = allPitches.length - 5;
             const startIndex = Math.floor(Math.random() * (maxStartIndex + 1));
             currentExercisePitches = allPitches.slice(startIndex, startIndex + 5);
         }
 
-        // Elegir 2 notas "Protagonistas" para enfocarse en la memoria
         let shuffled = [...currentExercisePitches].sort(() => 0.5 - Math.random());
         focusNotes = shuffled.slice(0, 2);
-        
-        lastGeneratedPitch = null; // Reiniciar al empezar el ejercicio
+        lastGeneratedPitch = null; 
 
         currentMeasuresData = [generateMeasureData(), generateMeasureData(), generateMeasureData(), generateMeasureData()];
         drawScore();
@@ -435,12 +527,7 @@
         if (wildcardBtn.classList.contains('poof')) return;
 
         let allNotes = [];
-        currentMeasuresData.forEach((m, mIdx) => {
-            m.forEach((n, nIdx) => {
-                if (!n.isRest) allNotes.push({ mIdx, nIdx });
-            });
-        });
-
+        currentMeasuresData.forEach((m, mIdx) => { m.forEach((n, nIdx) => { if (!n.isRest) allNotes.push({ mIdx, nIdx }); }); });
         currentMeasuresData.forEach(m => m.forEach(n => delete n.showHint));
         
         for(let i=0; i<3; i++) {
@@ -462,63 +549,37 @@
         renderer.resize(850, 250); 
         const context = renderer.getContext();
         let x = 10;
-
         const config = difficultyConfig[currentDifficulty];
         const useRepeat = config.hasRepeats && Math.random() > 0.5;
 
         currentMeasuresData.forEach((measureNotes, i) => {
             let w = (i === 0) ? 240 : 200;
             const stave = new Stave(x, 60, w);
-            
-            if (i === 0) {
-                stave.addClef("treble").addTimeSignature("4/4");
-                if (useRepeat) stave.setBegBarType(Vex.Flow.Barline.type.REPEAT_BEGIN);
-            }
-            
-            if (i === 3) {
-                if (useRepeat) {
-                    stave.setEndBarType(Vex.Flow.Barline.type.REPEAT_END);
-                } else {
-                    stave.setEndBarType(Vex.Flow.Barline.type.END);
-                }
-            }
-
+            if (i === 0) { stave.addClef("treble").addTimeSignature("4/4"); if (useRepeat) stave.setBegBarType(Vex.Flow.Barline.type.REPEAT_BEGIN); }
+            if (i === 3) { if (useRepeat) { stave.setEndBarType(Vex.Flow.Barline.type.REPEAT_END); } else { stave.setEndBarType(Vex.Flow.Barline.type.END); } }
             stave.setContext(context).draw();
 
-            let vfNotes = [];
-            let tempBeamNotes = [];
-            let beams = [];
+            let vfNotes = []; let tempBeamNotes = []; let beams = [];
 
             measureNotes.forEach((n, nIdx) => {
                 const sn = new StaveNote({ keys: n.keys, duration: n.duration });
-                
                 if (n.showHint) {
                     let letter = n.keys[0].split("/")[0];
                     let name = noteNamesES[letter];
                     sn.addModifier(new Annotation(name).setVerticalJustification(3).setFont("Nunito", 14, "bold")); 
                 }
-
                 vfNotes.push(sn);
 
                 if (config.hasTies && nIdx < measureNotes.length - 1) {
                     let nextN = measureNotes[nIdx + 1];
                     if (!n.isRest && !nextN.isRest && n.keys[0] === nextN.keys[0]) {
                         const validForTie = ['q', 'h'];
-                        if (validForTie.includes(n.duration) && validForTie.includes(nextN.duration)) {
-                            // Aumenté ligeramente la probabilidad de que se dibuje la ligadura (50%)
-                            if (Math.random() > 0.5) {
-                                n.tiedToNext = true; 
-                            }
-                        }
+                        if (validForTie.includes(n.duration) && validForTie.includes(nextN.duration) && Math.random() > 0.5) n.tiedToNext = true; 
                     }
                 }
-
                 if (n.partOfBeam) {
                     tempBeamNotes.push(sn);
-                    if (tempBeamNotes.length === 2) {
-                        beams.push(new Beam(tempBeamNotes));
-                        tempBeamNotes = [];
-                    }
+                    if (tempBeamNotes.length === 2) { beams.push(new Beam(tempBeamNotes)); tempBeamNotes = []; }
                 }
             });
 
@@ -527,14 +588,10 @@
 
             measureNotes.forEach((n, nIdx) => {
                 if (n.tiedToNext) {
-                    const tie = new Vex.Flow.StaveTie({
-                        first_note: vfNotes[nIdx],
-                        last_note: vfNotes[nIdx + 1]
-                    });
+                    const tie = new Vex.Flow.StaveTie({ first_note: vfNotes[nIdx], last_note: vfNotes[nIdx + 1] });
                     tie.setContext(context).draw();
                 }
             });
-
             x += w;
         });
     }
