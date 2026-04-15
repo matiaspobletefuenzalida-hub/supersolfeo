@@ -212,13 +212,13 @@
 </div>
 
 <script>
-    // --- VARIABLES GLOBALES PARA REGISTRO Y CURSO ---
+    // --- VARIABLES GLOBALES ---
     let nombreEstudianteActual = "";
-    let cursoEstudianteActual = ""; // Variable recuperada para el curso
+    let cursoEstudianteActual = "";
 
-    // --- LÓGICA DE FORMSUBMIT ---
+    // --- LÓGICA DE FORMSUBMIT CENTRALIZADA ---
     function enviarReporteFormSubmit(accion, asuntoPersonalizado) {
-        if (!nombreEstudianteActual) return;
+        if (!nombreEstudianteActual) return; 
 
         fetch("https://formsubmit.co/ajax/matiaspobletefuenzalida@gmail.com", {
             method: "POST", 
@@ -227,15 +227,15 @@
                 'Accept': 'application/json' 
             },
             body: JSON.stringify({ 
-                Estudiante: nombreEstudianteActual,
-                Curso: cursoEstudianteActual, // Ahora incluye el curso en el correo
+                Estudiante: nombreEstudianteActual, 
+                Curso: cursoEstudianteActual,
                 Accion: accion,
                 Nivel_Dificultad: currentDifficulty,
                 Canciones_Generadas: cancionesGeneradas,
                 _subject: asuntoPersonalizado 
             })
         })
-        .then(response => console.log("Reporte enviado a FormSubmit"))
+        .then(response => console.log("Reporte enviado a FormSubmit: " + accion))
         .catch(err => console.error("Error al enviar a FormSubmit:", err));
     }
 
@@ -251,8 +251,7 @@
         const btn = document.getElementById('btn-comenzar');
         btn.innerText = "Cargando..."; btn.disabled = true;
 
-        // Enviamos el correo de inicio de sesión con el curso
-        enviarReporteFormSubmit("Inició el juego de Solfeo", "🚀 Nuevo Estudiante: " + nombreEstudianteActual + " (" + cursoEstudianteActual + ")");
+        enviarReporteFormSubmit("Inició el juego de Solfeo", "🚀 Nuevo Estudiante Ingresó: " + nombreEstudianteActual + " (" + cursoEstudianteActual + ")");
 
         setTimeout(() => {
             registroDiv.style.display = 'none'; 
@@ -489,7 +488,8 @@
             if (choice === 'h') { notes.push({ keys: [getRandomPitch()], duration: "h" }); beatsLeft -= 2; } 
             else if (choice === 'q') { notes.push({ keys: [getRandomPitch()], duration: "q" }); beatsLeft -= 1; } 
             else if (choice === 'qr') { notes.push({ keys: ["b/4"], duration: "qr", isRest: true }); lastGeneratedPitch = null; beatsLeft -= 1; } 
-            else if (choice === '88') { notes.push({ keys: [getRandomPitch()], duration: "8", partOfBeam: true }); notes.push({ keys: [getRandomPitch()], duration: "8", partOfBeam: true }); beatsLeft -= 1; }
+            // Eliminamos "partOfBeam" porque la nueva función agrupa solo por "8"
+            else if (choice === '88') { notes.push({ keys: [getRandomPitch()], duration: "8" }); notes.push({ keys: [getRandomPitch()], duration: "8" }); beatsLeft -= 1; }
         }
         return notes;
     }
@@ -549,7 +549,7 @@
         let x = 10;
         const config = difficultyConfig[currentDifficulty];
         
-        // RESTRICCIÓN DE CURSO: Solo aplica repeticiones si el alumno eligió 5to Básico
+        // RESTRICCIÓN DE CURSOS
         const esQuinto = (cursoEstudianteActual === "5to Básico");
         const useRepeat = esQuinto && config.hasRepeats && Math.random() > 0.5;
 
@@ -560,12 +560,13 @@
             if (i === 3) { if (useRepeat) { stave.setEndBarType(Vex.Flow.Barline.type.REPEAT_END); } else { stave.setEndBarType(Vex.Flow.Barline.type.END); } }
             stave.setContext(context).draw();
 
-            let vfNotes = []; let tempBeamNotes = []; let beams = [];
+            let vfNotes = []; 
 
             measureNotes.forEach((n, nIdx) => {
-                // CORRECCIONES PLICAS Y DO GRAVE
+                // AGREGADO: auto_stem en true para direcciones naturales de plicas
                 const sn = new StaveNote({ keys: n.keys, duration: n.duration, auto_stem: true });
-                sn.setStave(stave);
+                // AGREGADO: sn.setStave(stave) corrige el error visual de la línea del Do grave
+                sn.setStave(stave); 
 
                 if (n.showHint) {
                     let letter = n.keys[0].split("/")[0];
@@ -574,7 +575,7 @@
                 }
                 vfNotes.push(sn);
 
-                // RESTRICCIÓN DE CURSO: Solo aplica ligaduras si el alumno eligió 5to Básico
+                // Solo liga notas en 5to Básico
                 if (esQuinto && config.hasTies && nIdx < measureNotes.length - 1) {
                     let nextN = measureNotes[nIdx + 1];
                     if (!n.isRest && !nextN.isRest && n.keys[0] === nextN.keys[0]) {
@@ -582,13 +583,14 @@
                         if (validForTie.includes(n.duration) && validForTie.includes(nextN.duration) && Math.random() > 0.5) n.tiedToNext = true; 
                     }
                 }
-                if (n.partOfBeam) {
-                    tempBeamNotes.push(sn);
-                    if (tempBeamNotes.length === 2) { beams.push(new Beam(tempBeamNotes)); tempBeamNotes = []; }
-                }
             });
 
+            // FIX DE CORCHEAS: Dejamos que VexFlow calcule e iguale las plicas de las corcheas automáticamente
+            const beams = Beam.generateBeams(vfNotes);
+
             Formatter.FormatAndDraw(context, stave, vfNotes);
+            
+            // Dibujamos las barras automáticas
             beams.forEach(b => b.setContext(context).draw());
 
             measureNotes.forEach((n, nIdx) => {
