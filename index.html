@@ -49,7 +49,21 @@
         }
 
         #registro-estudiante { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        
         .input-mario { padding: 15px 25px; font-size: 1.2rem; border: 3px solid #000; border-radius: 50px; font-family: 'Nunito', sans-serif; width: 80%; max-width: 400px; text-align: center; outline: none; }
+        
+        .select-curso {
+            padding: 15px;
+            font-size: 1.1rem;
+            border-radius: 15px;
+            border: 3px solid #000;
+            font-family: 'Fredoka', sans-serif;
+            cursor: pointer;
+            margin-bottom: 15px;
+            background: white;
+            width: 80%;
+            max-width: 400px;
+        }
 
         h1.mario-title { 
             font-family: 'Fredoka', sans-serif; font-weight: 900; font-size: 4.5rem; margin-bottom: 0.5rem; letter-spacing: 2px; line-height: 1.1;
@@ -130,8 +144,14 @@
     </h1>
 
     <div id="registro-estudiante">
-        <p class="subtitle">¡Hola! Antes de empezar, dinos tu nombre:</p>
+        <p class="subtitle">¡Hola! Elige tu curso y dinos tu nombre:</p>
         <form id="form-inicio" style="width: 100%;">
+            <select id="curso-estudiante" class="select-curso" required>
+                <option value="" disabled selected>Selecciona tu curso...</option>
+                <option value="4to Básico">4° Básico (Normal)</option>
+                <option value="5to Básico">5° Básico (Con Ligaduras y Repetición)</option>
+            </select>
+            <br>
             <input type="text" id="nombre-niño" name="Nombre" class="input-mario" placeholder="Escribe tu nombre aquí..." required>
             <br><br>
             <button type="submit" id="btn-comenzar" class="btn-main btn-refresh" style="background-color: #43B047;">
@@ -192,14 +212,14 @@
 </div>
 
 <script>
-    // --- VARIABLES GLOBALES PARA REGISTRO ---
+    // --- VARIABLES GLOBALES PARA REGISTRO Y CURSO ---
     let nombreEstudianteActual = "";
+    let cursoEstudianteActual = ""; // Variable recuperada para el curso
 
-    // --- LÓGICA DE FORMSUBMIT CENTRALIZADA ---
+    // --- LÓGICA DE FORMSUBMIT ---
     function enviarReporteFormSubmit(accion, asuntoPersonalizado) {
-        if (!nombreEstudianteActual) return; // No enviar si no hay nombre
+        if (!nombreEstudianteActual) return;
 
-        // ¡CORREO ACTUALIZADO AQUÍ!
         fetch("https://formsubmit.co/ajax/matiaspobletefuenzalida@gmail.com", {
             method: "POST", 
             headers: { 
@@ -207,14 +227,15 @@
                 'Accept': 'application/json' 
             },
             body: JSON.stringify({ 
-                Estudiante: nombreEstudianteActual, 
+                Estudiante: nombreEstudianteActual,
+                Curso: cursoEstudianteActual, // Ahora incluye el curso en el correo
                 Accion: accion,
                 Nivel_Dificultad: currentDifficulty,
                 Canciones_Generadas: cancionesGeneradas,
                 _subject: asuntoPersonalizado 
             })
         })
-        .then(response => console.log("Reporte enviado a FormSubmit: " + accion))
+        .then(response => console.log("Reporte enviado a FormSubmit"))
         .catch(err => console.error("Error al enviar a FormSubmit:", err));
     }
 
@@ -225,13 +246,14 @@
     formInicio.addEventListener('submit', function(e) {
         e.preventDefault();
         nombreEstudianteActual = document.getElementById('nombre-niño').value;
+        cursoEstudianteActual = document.getElementById('curso-estudiante').value;
+        
         const btn = document.getElementById('btn-comenzar');
         btn.innerText = "Cargando..."; btn.disabled = true;
 
-        // Enviamos el correo de inicio de sesión
-        enviarReporteFormSubmit("Inició el juego de Solfeo", "🚀 Nuevo Estudiante Ingresó: " + nombreEstudianteActual);
+        // Enviamos el correo de inicio de sesión con el curso
+        enviarReporteFormSubmit("Inició el juego de Solfeo", "🚀 Nuevo Estudiante: " + nombreEstudianteActual + " (" + cursoEstudianteActual + ")");
 
-        // Ocultar formulario y mostrar juego (simulamos que carga rápido)
         setTimeout(() => {
             registroDiv.style.display = 'none'; 
             juegoDiv.style.display = 'block';
@@ -241,38 +263,30 @@
     // --- MOTOR DE MINIJUEGOS ARCADE 8-BIT ---
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    ctx.imageSmoothingEnabled = false; // Forzar estética pixelada
+    ctx.imageSmoothingEnabled = false; 
     let animationId;
     let currentGame = null;
     let keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, ' ': false };
     
-    // Listeners Teclado
     window.addEventListener('keydown', e => { if (keys.hasOwnProperty(e.key)) keys[e.key] = true; });
     window.addEventListener('keyup', e => { if (keys.hasOwnProperty(e.key)) keys[e.key] = false; });
-    
-    // Controles Touch/Botones
     function pressKey(k) { keys[k] = true; event.preventDefault(); }
     function releaseKey(k) { keys[k] = false; event.preventDefault(); }
 
-    // Función auxiliar para dibujar notas pixeladas
     function drawPixelNote(x, y) {
         ctx.fillStyle = "#000";
-        ctx.fillRect(x+8, y+2, 4, 16); // Plica
-        ctx.fillRect(x+2, y+12, 10, 8); // Cabeza
-        ctx.fillRect(x, y+14, 2, 4); // Borde izquierdo cabeza
-        ctx.fillRect(x+12, y+14, 2, 4); // Borde derecho cabeza
+        ctx.fillRect(x+8, y+2, 4, 16); 
+        ctx.fillRect(x+2, y+12, 10, 8); 
+        ctx.fillRect(x, y+14, 2, 4); 
+        ctx.fillRect(x+12, y+14, 2, 4); 
     }
 
     const games = {
         snake: {
             title: "🐍 Snake Musical",
             init: function() {
-                this.grid = 15;
-                this.snake = [{x: 10, y: 10}];
-                this.dx = 0; this.dy = 0;
-                this.food = {x: 5, y: 5};
-                this.score = 0; this.target = 5;
-                this.frameCount = 0;
+                this.grid = 15; this.snake = [{x: 10, y: 10}]; this.dx = 0; this.dy = 0;
+                this.food = {x: 5, y: 5}; this.score = 0; this.target = 5; this.frameCount = 0;
             },
             update: function() {
                 if (keys.ArrowLeft && this.dx === 0) { this.dx = -1; this.dy = 0; }
@@ -280,34 +294,25 @@
                 if (keys.ArrowUp && this.dy === 0) { this.dx = 0; this.dy = -1; }
                 if (keys.ArrowDown && this.dy === 0) { this.dx = 0; this.dy = 1; }
 
-                if (++this.frameCount < 8) return; // Velocidad
+                if (++this.frameCount < 8) return; 
                 this.frameCount = 0;
 
                 const head = { x: this.snake[0].x + this.dx, y: this.snake[0].y + this.dy };
-                
-                // Bordes
                 if(head.x < 0) head.x = 19; if(head.x >= 20) head.x = 0;
                 if(head.y < 0) head.y = 19; if(head.y >= 20) head.y = 0;
                 
                 this.snake.unshift(head);
                 if (head.x === this.food.x && head.y === this.food.y) {
-                    this.score++;
-                    this.food = { x: Math.floor(Math.random()*20), y: Math.floor(Math.random()*20) };
+                    this.score++; this.food = { x: Math.floor(Math.random()*20), y: Math.floor(Math.random()*20) };
                     if (this.score >= this.target) gameWon();
-                } else {
-                    this.snake.pop();
-                }
+                } else { this.snake.pop(); }
             },
             draw: function() {
                 ctx.fillStyle = "#87CEEB"; ctx.fillRect(0,0, 300, 300);
-                ctx.fillStyle = "#43B047"; // Snake
+                ctx.fillStyle = "#43B047"; 
                 this.snake.forEach((p, i) => {
                     ctx.fillRect(p.x * this.grid, p.y * this.grid, this.grid-1, this.grid-1);
-                    if (i === 0) { // Ojo pixelado
-                        ctx.fillStyle = "#000";
-                        ctx.fillRect(p.x * this.grid + 4, p.y * this.grid + 4, 3, 3);
-                        ctx.fillStyle = "#43B047";
-                    }
+                    if (i === 0) { ctx.fillStyle = "#000"; ctx.fillRect(p.x * this.grid + 4, p.y * this.grid + 4, 3, 3); ctx.fillStyle = "#43B047"; }
                 });
                 drawPixelNote(this.food.x * this.grid - 2, this.food.y * this.grid);
                 ctx.fillStyle = "#000"; ctx.font = "12px 'Press Start 2P'"; ctx.textAlign = "left";
@@ -316,42 +321,26 @@
         },
         catcher: {
             title: "✈️ Avión Caza-Notas",
-            init: function() {
-                this.p = { x: 130, y: 260, w: 40, h: 40 };
-                this.notes = [];
-                this.score = 0; this.target = 10;
-                this.timer = 0;
-            },
+            init: function() { this.p = { x: 130, y: 260, w: 40, h: 40 }; this.notes = []; this.score = 0; this.target = 10; this.timer = 0; },
             update: function() {
-                if (keys.ArrowLeft) this.p.x -= 5;
-                if (keys.ArrowRight) this.p.x += 5;
-                if (this.p.x < 0) this.p.x = 0;
-                if (this.p.x > 260) this.p.x = 260;
+                if (keys.ArrowLeft) this.p.x -= 5; if (keys.ArrowRight) this.p.x += 5;
+                if (this.p.x < 0) this.p.x = 0; if (this.p.x > 260) this.p.x = 260;
 
                 this.timer++;
-                if (this.timer % 30 === 0) {
-                    this.notes.push({ x: Math.random() * 260, y: -20, speed: 2 + Math.random() * 2 });
-                }
+                if (this.timer % 30 === 0) this.notes.push({ x: Math.random() * 260, y: -20, speed: 2 + Math.random() * 2 });
 
                 for (let i = this.notes.length - 1; i >= 0; i--) {
-                    let n = this.notes[i];
-                    n.y += n.speed;
-                    // Colisión
+                    let n = this.notes[i]; n.y += n.speed;
                     if (n.y > 240 && n.x > this.p.x - 20 && n.x < this.p.x + this.p.w) {
-                        this.score++;
-                        this.notes.splice(i, 1);
-                        if (this.score >= this.target) gameWon();
-                    } else if (n.y > 300) {
-                        this.notes.splice(i, 1);
-                    }
+                        this.score++; this.notes.splice(i, 1); if (this.score >= this.target) gameWon();
+                    } else if (n.y > 300) { this.notes.splice(i, 1); }
                 }
             },
             draw: function() {
                 ctx.fillStyle = "#87CEEB"; ctx.fillRect(0,0, 300, 300);
-                // Avión pixelado
-                ctx.fillStyle = "#E52521"; ctx.fillRect(this.p.x+10, this.p.y+10, 20, 20); // Cuerpo
-                ctx.fillStyle = "#049CD8"; ctx.fillRect(this.p.x, this.p.y+20, 40, 10); // Alas
-                ctx.fillStyle = "#000"; ctx.fillRect(this.p.x+15, this.p.y+15, 10, 10); // Cabina
+                ctx.fillStyle = "#E52521"; ctx.fillRect(this.p.x+10, this.p.y+10, 20, 20); 
+                ctx.fillStyle = "#049CD8"; ctx.fillRect(this.p.x, this.p.y+20, 40, 10); 
+                ctx.fillStyle = "#000"; ctx.fillRect(this.p.x+15, this.p.y+15, 10, 10); 
 
                 this.notes.forEach(n => drawPixelNote(n.x, n.y));
                 ctx.fillStyle = "#000"; ctx.font = "12px 'Press Start 2P'"; ctx.textAlign = "left";
@@ -360,59 +349,34 @@
         },
         jumper: {
             title: "🍄 Súper Salto",
-            init: function() {
-                this.p = { x: 30, y: 230, vy: 0, ground: 230, jump: -12 };
-                this.obs = [];
-                this.score = 0; this.target = 5;
-                this.timer = 0; this.gravity = 0.6;
-            },
+            init: function() { this.p = { x: 30, y: 230, vy: 0, ground: 230, jump: -12 }; this.obs = []; this.score = 0; this.target = 5; this.timer = 0; this.gravity = 0.6; },
             update: function() {
-                if ((keys.ArrowUp || keys[' ']) && this.p.y === this.p.ground) {
-                    this.p.vy = this.p.jump;
-                }
-                this.p.vy += this.gravity;
-                this.p.y += this.p.vy;
+                if ((keys.ArrowUp || keys[' ']) && this.p.y === this.p.ground) this.p.vy = this.p.jump;
+                this.p.vy += this.gravity; this.p.y += this.p.vy;
                 if (this.p.y > this.p.ground) { this.p.y = this.p.ground; this.p.vy = 0; }
 
                 this.timer++;
-                if (this.timer > 80 && Math.random() < 0.02) {
-                    this.obs.push({ x: 300, y: 235, passed: false });
-                    this.timer = 0;
-                }
+                if (this.timer > 80 && Math.random() < 0.02) { this.obs.push({ x: 300, y: 235, passed: false }); this.timer = 0; }
 
                 for (let i = this.obs.length - 1; i >= 0; i--) {
-                    let o = this.obs[i];
-                    o.x -= 4;
-                    // Hitbox simple
-                    if (Math.abs(this.p.x - o.x) < 20 && Math.abs(this.p.y - o.y) < 20) {
-                        // Perdió, reinicia puntaje
-                        this.score = 0;
-                        this.obs = [];
-                        break;
-                    }
-                    if (!o.passed && o.x < this.p.x) {
-                        o.passed = true;
-                        this.score++;
-                        if (this.score >= this.target) gameWon();
-                    }
+                    let o = this.obs[i]; o.x -= 4;
+                    if (Math.abs(this.p.x - o.x) < 20 && Math.abs(this.p.y - o.y) < 20) { this.score = 0; this.obs = []; break; }
+                    if (!o.passed && o.x < this.p.x) { o.passed = true; this.score++; if (this.score >= this.target) gameWon(); }
                     if (o.x < -20) this.obs.splice(i, 1);
                 }
             },
             draw: function() {
                 ctx.fillStyle = "#87CEEB"; ctx.fillRect(0,0, 300, 300);
-                // Piso pixelado
                 ctx.fillStyle = "#8B4513"; ctx.fillRect(0, 260, 300, 40);
                 ctx.fillStyle = "#43B047"; ctx.fillRect(0, 260, 300, 10);
                 
-                // Champiñón pixelado
-                ctx.fillStyle = "#E52521"; ctx.fillRect(this.p.x+5, this.p.y+5, 20, 20); // Sombrero
-                ctx.fillStyle = "#FFF"; ctx.fillRect(this.p.x+10, this.p.y+10, 10, 10); // Puntos sombrero
-                ctx.fillStyle = "#FFF9C4"; ctx.fillRect(this.p.x+10, this.p.y+25, 10, 10); // Tallo
+                ctx.fillStyle = "#E52521"; ctx.fillRect(this.p.x+5, this.p.y+5, 20, 20); 
+                ctx.fillStyle = "#FFF"; ctx.fillRect(this.p.x+10, this.p.y+10, 10, 10); 
+                ctx.fillStyle = "#FFF9C4"; ctx.fillRect(this.p.x+10, this.p.y+25, 10, 10); 
 
-                // Obstáculo pixelado
                 this.obs.forEach(o => {
-                    ctx.fillStyle = "#000"; ctx.fillRect(o.x+5, o.y+5, 20, 20); // Cuerpo bomba
-                    ctx.fillStyle = "#FFF"; ctx.fillRect(o.x+10, o.y+10, 3, 10); // Mecha
+                    ctx.fillStyle = "#000"; ctx.fillRect(o.x+5, o.y+5, 20, 20); 
+                    ctx.fillStyle = "#FFF"; ctx.fillRect(o.x+10, o.y+10, 3, 10); 
                 });
                 
                 ctx.fillStyle = "#000"; ctx.font = "12px 'Press Start 2P'"; ctx.textAlign = "left";
@@ -458,7 +422,6 @@
         document.getElementById('arcade-controls').style.display = 'none';
         document.getElementById('btn-cerrar-pausa').style.display = 'flex';
 
-        // Enviamos correo al profesor notificando que el estudiante superó un minijuego/nivel
         enviarReporteFormSubmit(`Superó Minijuego: ${currentGame.title}`, `🎮 Nivel Superado: ${nombreEstudianteActual}`);
     }
 
@@ -489,7 +452,6 @@
     function startGame(level) {
         if (!hasStarted) { document.getElementById('game-area').style.display = 'flex'; hasStarted = true; }
         
-        // Enviamos correo si el estudiante cambia la dificultad
         if (hasStarted && currentDifficulty !== level && nombreEstudianteActual !== "") {
             enviarReporteFormSubmit(`Inició Nivel ${level}`, `📈 Cambio de Nivel: ${nombreEstudianteActual}`);
         }
@@ -533,7 +495,6 @@
     }
 
     function renderNewExercise() {
-        // --- ACTIVADOR DE MINIJUEGOS CADA 5 ---
         cancionesGeneradas++;
         if (cancionesGeneradas % 5 === 0) {
             iniciarArcade();
@@ -587,7 +548,10 @@
         const context = renderer.getContext();
         let x = 10;
         const config = difficultyConfig[currentDifficulty];
-        const useRepeat = config.hasRepeats && Math.random() > 0.5;
+        
+        // RESTRICCIÓN DE CURSO: Solo aplica repeticiones si el alumno eligió 5to Básico
+        const esQuinto = (cursoEstudianteActual === "5to Básico");
+        const useRepeat = esQuinto && config.hasRepeats && Math.random() > 0.5;
 
         currentMeasuresData.forEach((measureNotes, i) => {
             let w = (i === 0) ? 240 : 200;
@@ -599,7 +563,10 @@
             let vfNotes = []; let tempBeamNotes = []; let beams = [];
 
             measureNotes.forEach((n, nIdx) => {
-                const sn = new StaveNote({ keys: n.keys, duration: n.duration });
+                // CORRECCIONES PLICAS Y DO GRAVE
+                const sn = new StaveNote({ keys: n.keys, duration: n.duration, auto_stem: true });
+                sn.setStave(stave);
+
                 if (n.showHint) {
                     let letter = n.keys[0].split("/")[0];
                     let name = noteNamesES[letter];
@@ -607,7 +574,8 @@
                 }
                 vfNotes.push(sn);
 
-                if (config.hasTies && nIdx < measureNotes.length - 1) {
+                // RESTRICCIÓN DE CURSO: Solo aplica ligaduras si el alumno eligió 5to Básico
+                if (esQuinto && config.hasTies && nIdx < measureNotes.length - 1) {
                     let nextN = measureNotes[nIdx + 1];
                     if (!n.isRest && !nextN.isRest && n.keys[0] === nextN.keys[0]) {
                         const validForTie = ['q', 'h'];
